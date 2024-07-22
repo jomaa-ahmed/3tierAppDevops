@@ -1,4 +1,4 @@
-Absolutely! Here’s the revised documentation, organized into distinct sections for each part of the project:
+Here's the complete documentation in Markdown format:
 
 ```markdown
 # 3-Tier Full Stack Project Documentation
@@ -267,3 +267,159 @@ pipeline {
         nodejs 'node21'
     }
     environment{
+        SCNNAMER_HOME = tool 'sonar
+
+-scanner'
+    }
+
+    stages {
+        stage('SonarQube analysis') {
+            steps {
+                sh "${SCNNAMER_HOME}/bin/sonar-scanner"
+            }
+        }
+    }
+}
+```
+
+### Build Stage
+This stage builds the application to prepare it for deployment.
+
+```groovy
+pipeline {
+    agent any
+    
+    tools{
+        nodejs 'node21'
+    }
+    environment{
+        SCNNAMER_HOME = tool 'sonar-scanner'
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                sh "npm run build"
+            }
+        }
+    }
+}
+```
+
+### Deploy to Dev Stage
+In this stage, the application is deployed to the development environment.
+
+```groovy
+pipeline {
+    agent any
+    
+    tools{
+        nodejs 'node21'
+    }
+    environment{
+        SCNNAMER_HOME = tool 'sonar-scanner'
+    }
+
+    stages {
+        stage('Deploy to Dev') {
+            steps {
+                sh "docker-compose -f docker-compose.dev.yml up -d"
+            }
+        }
+    }
+}
+```
+
+## Production Deployment Pipeline
+The production deployment pipeline automates the process of deploying the application to the production environment. It ensures that the application is built, tested, and deployed in a consistent and reliable manner.
+
+### Build and Push Docker Image Stage
+In this stage, the Docker image is built and pushed to a container registry.
+
+```groovy
+pipeline {
+    agent any
+    
+    tools{
+        nodejs 'node21'
+    }
+    environment{
+        SCNNAMER_HOME = tool 'sonar-scanner'
+    }
+
+    stages {
+        stage('Build Docker Image') {
+            steps {
+                sh "docker build -t myapp:latest ."
+            }
+        }
+        
+        stage('Push Docker Image') {
+            steps {
+                sh "docker tag myapp:latest myregistry/myapp:latest"
+                sh "docker push myregistry/myapp:latest"
+            }
+        }
+    }
+}
+```
+
+### Deploy to Production Stage
+This stage deploys the application to the production environment using the Docker image.
+
+```groovy
+pipeline {
+    agent any
+    
+    tools{
+        nodejs 'node21'
+    }
+    environment{
+        SCNNAMER_HOME = tool 'sonar-scanner'
+    }
+
+    stages {
+        stage('Deploy to Production') {
+            steps {
+                sh "docker-compose -f docker-compose.prod.yml up -d"
+            }
+        }
+    }
+}
+```
+
+## Additional Configurations
+
+### Setting Up Cloudinary
+1. Create an account on Cloudinary.
+2. Obtain your cloud name, API key, and secret.
+3. Update your `.env` file with the obtained values.
+
+### Setting Up Mapbox
+1. Create an account on Mapbox.
+2. Obtain your public access token.
+3. Update your `.env` file with the obtained token.
+
+### Setting Up MongoDB Atlas
+1. Sign up for MongoDB Atlas.
+2. Create a new database.
+3. Retrieve your connection URL.
+4. Update your `.env` file with the connection URL.
+
+### Updating Jenkins Credentials
+1. Go to Jenkins Dashboard.
+2. Click on "Manage Jenkins" > "Manage Credentials".
+3. Add new credentials for Cloudinary, Mapbox, and MongoDB Atlas.
+
+### Configuring Jenkins for Node.js
+1. Go to Jenkins Dashboard.
+2. Click on "Manage Jenkins" > "Global Tool Configuration".
+3. Add Node.js installation under "NodeJS installations".
+
+## Conclusion
+This documentation provides a detailed guide for setting up and deploying a 3-tier full stack project. By following the outlined steps, you can ensure a smooth integration of Jenkins, Docker, SonarQube, Cloudinary, Mapbox, and MongoDB Atlas, resulting in a well-organized and efficient development and deployment process.
+
+Feel free to adjust and expand upon these configurations to fit your specific project requirements.
+```
+
+You can copy and paste this into your Markdown file. Let me know if you need any further adjustments!
