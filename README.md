@@ -1,425 +1,239 @@
-Here's the complete documentation in Markdown format:
+Certainly! Here’s the refined documentation without the "Additional Configurations" and "Troubleshooting and Maintenance" sections:
 
-```markdown
-# 3-Tier Full Stack Project Documentation
+---
+
+# DevOps Pipeline Documentation
 
 ## Table of Contents
-1. [Introduction](#introduction)
-2. [Project Overview](#project-overview)
-3. [Setting Up Jenkins](#setting-up-jenkins)
-4. [Installing Docker](#installing-docker)
-5. [Setting Up SonarQube](#setting-up-sonarqube)
-6. [Local Execution](#local-execution)
-7. [Dev Deployment Pipeline](#dev-deployment-pipeline)
-8. [Production Deployment Pipeline](#production-deployment-pipeline)
-9. [Additional Configurations](#additional-configurations)
+1. [Pipeline Overview](#pipeline-overview)
+2. [Jenkins Setup](#jenkins-setup)
+3. [Pipeline Stages](#pipeline-stages)
+   - [Git Checkout](#git-checkout)
+   - [Install Dependencies](#install-dependencies)
+   - [Unit Tests](#unit-tests)
+   - [Trivy Filesystem Scan](#trivy-filesystem-scan)
+   - [SonarQube Analysis](#sonarqube-analysis)
+   - [Quality Gate](#quality-gate)
+   - [Docker Build & Tag](#docker-build--tag)
+   - [Trivy Image Scan](#trivy-image-scan)
+   - [Docker Push Image](#docker-push-image)
+   - [Docker Deploy to Dev](#docker-deploy-to-dev)
+4. [References](#references)
 
-## Introduction
-This documentation provides a comprehensive guide for setting up and deploying a 3-tier full stack project using various tools and platforms. The project integrates Jenkins for continuous integration and delivery, Docker for containerization, SonarQube for code quality analysis, Cloudinary for media management, Mapbox for mapping services, and MongoDB Atlas for database services.
+---
 
-## Project Overview
-The 3-tier architecture consists of:
-- **Presentation Tier**: This is the user interface layer that interacts with users.
-- **Logic Tier**: This layer processes user inputs and makes logical decisions.
-- **Data Tier**: This layer handles data storage and management.
+## Pipeline Overview
 
-The project aims to demonstrate the integration of these tiers using modern DevOps practices and tools.
+The Jenkins pipeline automates the process of building, testing, and deploying a 3-tier full stack application. It integrates various tools for continuous integration and delivery (CI/CD), code quality analysis, security scanning, and containerization. The pipeline is designed to ensure code quality, security, and smooth deployment to development environments.
 
-## Setting Up Jenkins
-Jenkins is an open-source automation server used to automate parts of the software development process, such as building, testing, and deploying code. In this project, Jenkins is used for continuous integration and continuous delivery (CI/CD). The setup involves installing Jenkins on an Ubuntu server, configuring it for use, and ensuring it can interact with other components of the project.
+## Jenkins Setup
 
-### Jenkins Installation Script
-```bash
-#!/bin/bash
+### Prerequisites
 
-# Install OpenJDK 17 JRE Headless
-sudo apt install openjdk-17-jre-headless -y
+1. **Jenkins Installation:** Ensure Jenkins is installed on an Ubuntu server or any other supported platform.
+2. **Plugins:** Install necessary Jenkins plugins such as:
+   - Git Plugin
+   - NodeJS Plugin
+   - Docker Pipeline Plugin
+   - SonarQube Scanner Plugin
+   - Trivy Plugin (or custom Trivy integration)
+3. **Tools Configuration:** Set up tools in Jenkins under "Manage Jenkins" > "Global Tool Configuration".
 
-# Download Jenkins GPG key
-sudo wget -O /usr/share/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+### Jenkins Configuration
 
-# Add Jenkins repository to package manager sources
-echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+1. **Add NodeJS:** Go to "Manage Jenkins" > "Global Tool Configuration" and add NodeJS with the version `node21`.
+2. **Add Docker:** Configure Docker under "Manage Jenkins" > "Global Tool Configuration" and provide Docker installation details.
+3. **Add SonarQube:** Configure SonarQube under "Manage Jenkins" > "Configure System" and add SonarQube server details.
 
-# Update package manager repositories
-sudo apt-get update
+## Pipeline Stages
 
-# Install Jenkins
-sudo apt-get install jenkins -y
-```
+### Git Checkout
 
-![Jenkins Configuration](9-configure%20jenkins.png)
-
-## Installing Docker
-Docker is a platform that enables developers to create, deploy, and run applications in containers. Containers are lightweight, portable, and ensure consistency across multiple environments. This project uses Docker to containerize applications and services, making them easier to manage and deploy.
-
-### Docker Installation Script
-```bash
-#!/bin/bash
-
-# Update package manager repositories
-sudo apt-get update
-
-# Install necessary dependencies
-sudo apt-get install -y ca-certificates curl
-
-# Create directory for Docker GPG key
-sudo install -m 0755 -d /etc/apt/keyrings
-
-# Download Docker's GPG key
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-
-# Ensure proper permissions for the key
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-
-# Add Docker repository to Apt sources
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-# Update package manager repositories
-sudo apt-get update
-
-# Install Docker
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-sudo chmod 666 /var/run/docker.sock
-```
-
-## Setting Up SonarQube
-SonarQube is a tool for continuous inspection of code quality. It performs automatic reviews of code to detect bugs, vulnerabilities, and code smells. In this project, SonarQube is used to ensure that the codebase maintains high quality and adheres to best practices.
-
-### SonarQube Installation Command
-```bash
-docker run -d --name sonar -p 9000:9000 sonarqube:lts-community
-```
-
-![SonarQube Installation](10-install%20sonar%20qube.png)
-![SonarQube Project Setup](11-sonar%20working.png)
-
-## Local Execution
-For local development and testing, the application is deployed on a local machine using tools like Mobaxterm for SSH connections, NVM for managing Node.js versions, and other necessary configurations. This ensures that the application runs correctly in a controlled local environment before being deployed to production.
-
-### Steps for Local Execution
-1. **Connect to the Machine**: Use Mobaxterm to connect to your Ubuntu machine using an SSH key.
-
-![Connect to Machine](2-install%20npm.png)
-
-2. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/jomaa-ahmed/3tierAppDevops.git
-   cd 3tierAppDevops
-   ```
-
-3. **Install Node.js using NVM**:
-   ```bash
-   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-   export NVM_DIR="$HOME/.nvm"
-   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-   [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-   nvm install 20
-   node -v
-   npm -v
-   ```
-
-4. **Obtain API keys**: 
-   - Create an account on Cloudinary and obtain your cloud name, API key, and secret.
-   - Create an account on Mapbox and obtain your public access token.
-   - Sign up for MongoDB Atlas and create a database. Retrieve your connection URL.
-
-![Cloudinary Configuration](3-configure%20cloudinary.png)
-![Mapbox Account](4-mapbox%20account.png)
-![MongoDB Atlas](5-mongodb%20atlas.png)
-
-5. **Create a `.env` file**:
-   ```bash
-   vi .env
-   ```
-   Add the following lines to the file and replace placeholders with your actual values:
-   ```env
-   CLOUDINARY_CLOUD_NAME=[Your Cloudinary Cloud Name]
-   CLOUDINARY_KEY=[Your Cloudinary Key]
-   CLOUDINARY_SECRET=[Your Cloudinary Secret]
-   MAPBOX_TOKEN=[Your Mapbox Token]
-   DB_URL=[Your MongoDB Atlas Connection URL]
-   SECRET=[Your Chosen Secret Key]
-   ```
-
-6. **Install project dependencies**:
-   ```bash
-   npm install
-   ```
-
-7. **Start the application**:
-   ```bash
-   npm start
-   ```
-
-8. **Access the app**: Open a web browser and navigate to `http://VM_IP:3000` (replace VM_IP with the IP address of your Ubuntu machine).
-
-![Access the App](7-npm%20i%20local.png)
-
-## Dev Deployment Pipeline
-The development deployment pipeline automates the process of building, testing, and deploying the application in a development environment. It ensures that code changes are integrated continuously, tested for quality, and deployed to a development server for further testing and validation.
-
-### Git Checkout Stage
-In this stage, the Jenkins pipeline checks out the code from the Git repository.
+This stage fetches the latest code from the Git repository.
 
 ```groovy
-pipeline {
-    agent any
-    
-    tools{
-        nodejs 'node21'
+stage('git checkout') {
+    steps {
+        git branch: 'main', url: 'https://github.com/jomaa-ahmed/3tierAppDevops.git'
     }
-    environment{
-        SCNNAMER_HOME = tool 'sonar-scanner'
-    }
+}
+```
 
-    stages {
-        stage('git checkout') {
-            steps {
-                git branch: 'main', url: 'https://github.com/jomaa-ahmed/3tierAppDevops.git'
+- **Purpose:** Retrieve the source code for the application from the specified Git branch.
+- **Details:** Configures Git to pull the latest changes from the `main` branch of the repository.
+- **Commands Used:** `git`
+
+### Install Dependencies
+
+Installs all the necessary Node.js dependencies for the application.
+
+```groovy
+stage('install dependencies') {
+    steps {
+        sh "npm install"
+    }
+}
+```
+
+- **Purpose:** Install project dependencies listed in `package.json`.
+- **Details:** Uses npm to ensure all required packages are available for the build and test processes.
+- **Commands Used:** `npm install`
+
+### Unit Tests
+
+Runs the unit tests to verify that the application functions as expected.
+
+```groovy
+stage('Unit tests') {
+    steps {
+        sh "npm test"
+    }
+}
+```
+
+- **Purpose:** Execute unit tests to ensure code functionality and correctness.
+- **Details:** The test results help in identifying issues early in the development cycle.
+- **Commands Used:** `npm test`
+
+### Trivy Filesystem Scan
+
+Scans the application's filesystem for vulnerabilities.
+
+```groovy
+stage('Trivy fs scan') {
+    steps {
+        sh "trivy fs --format table -o fs-report.html ."
+    }
+}
+```
+
+- **Purpose:** Detect vulnerabilities in the filesystem dependencies and configurations.
+- **Details:** Generates a report in `fs-report.html` for review.
+- **Commands Used:** `trivy fs`
+
+### SonarQube Analysis
+
+Performs static code analysis to identify code smells, bugs, and security vulnerabilities.
+
+```groovy
+stage('SonarQube Analysis') {
+    steps {
+        withSonarQubeEnv('sonar') {
+            sh "\$SCNNAMER_HOME/bin/sonar-scanner -Dsonar.projectKey=myProject -Dsonar.sources=."
+        }
+    }
+}
+```
+
+- **Purpose:** Analyze the codebase for quality and security issues.
+- **Details:** Utilizes SonarQube to ensure adherence to coding standards and best practices.
+- **Commands Used:** `sonar-scanner`
+
+### Quality Gate
+
+(Optional) Ensures that the code meets the quality standards defined in SonarQube before proceeding.
+
+```groovy
+stage('Quality Gate') {
+    steps {
+        script {
+            def qg = waitForQualityGate()
+            if (qg.status != 'OK') {
+                error "Pipeline aborted due to quality gate failure: ${qg.status}"
             }
         }
     }
 }
 ```
 
-### Install Dependencies Stage
-This stage installs the necessary dependencies for the application using npm.
+- **Purpose:** Validate that the code quality metrics meet the required standards.
+- **Details:** Abort the pipeline if quality gate checks fail.
+- **Commands Used:** `waitForQualityGate()`
+
+### Docker Build & Tag
+
+Builds and tags the Docker image for the application.
 
 ```groovy
-pipeline {
-    agent any
-    
-    tools{
-        nodejs 'node21'
-    }
-    environment{
-        SCNNAMER_HOME = tool 'sonar-scanner'
-    }
-
-    stages {
-        stage('install dependencies') {
-            steps {
-                sh "npm install"
+stage('docker build & Tag') {
+    steps {
+        script {
+            withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+                sh "docker build -t kirox2023/vermegimage:latest ."
             }
         }
     }
 }
 ```
 
-### Unit Tests Stage
-In this stage, the pipeline runs unit tests to ensure the application is working as expected.
+- **Purpose:** Create a Docker image and tag it for versioning and deployment.
+- **Details:** Uses Docker to build an image from the Dockerfile and tag it with `latest`.
+- **Commands Used:** `docker build`
+
+### Trivy Image Scan
+
+Scans the Docker image for vulnerabilities.
 
 ```groovy
-pipeline {
-    agent any
-    
-    tools{
-        nodejs 'node21'
+stage('Trivy image scan') {
+    steps {
+        sh "trivy image --format table -o fs-report.html kirox2023/vermegimage:latest"
     }
-    environment{
-        SCNNAMER_HOME = tool 'sonar-scanner'
-    }
+}
+```
 
-    stages {
-        stage('Unit tests') {
-            steps {
-                sh "npm test"
+- **Purpose:** Check the Docker image for known vulnerabilities.
+- **Details:** Outputs a report in `fs-report.html`.
+- **Commands Used:** `trivy image`
+
+### Docker Push Image
+
+Pushes the Docker image to a Docker registry.
+
+```groovy
+stage('docker Push image') {
+    steps {
+        script {
+            withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+                sh "docker push kirox2023/vermegimage:latest"
             }
         }
     }
 }
 ```
 
-### Trivy FS Scan Stage
-This stage performs a filesystem scan using Trivy to identify vulnerabilities.
+- **Purpose:** Upload the built Docker image to a container registry for storage and distribution.
+- **Details:** Uses Docker credentials to push the image.
+- **Commands Used:** `docker push`
+
+### Docker Deploy to Dev
+
+Deploys the Docker image to the development environment.
 
 ```groovy
-pipeline {
-    agent any
-    
-    tools{
-        nodejs 'node21'
-    }
-    environment{
-        SCNNAMER_HOME = tool 'sonar-scanner'
-    }
-
-    stages {
-        stage('Trivy fs scan') {
-            steps {
-                sh "trivy fs --format table -o fs-report.html ."
+stage('docker deploy to dev') {
+    steps {
+        script {
+            withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+                sh "docker run -d -p 3000:3000 kirox2023/vermegimage:latest"
             }
         }
     }
 }
 ```
 
-### SonarQube Analysis Stage
-In this stage, the pipeline runs a SonarQube analysis to check for code quality and security issues.
+- **Purpose:** Run the Docker container in the development environment.
+- **Details:** Maps port 3000 on the host to port 3000 in the container.
+- **Commands Used:** `docker run`
 
-```groovy
-pipeline {
-    agent any
-    
-    tools{
-        nodejs 'node21'
-    }
-    environment{
-        SCNNAMER_HOME = tool 'sonar
+## References
 
--scanner'
-    }
+- [Jenkins Documentation](https://www.jenkins.io/doc/)
+- [Node.js Documentation](https://nodejs.org/en/docs/)
+- [Docker Documentation](https://docs.docker.com/)
+- [SonarQube Documentation](https://docs.sonarqube.org/)
+- [Trivy Documentation](https://aquasecurity.github.io/trivy/v0.34.2/)
 
-    stages {
-        stage('SonarQube analysis') {
-            steps {
-                sh "${SCNNAMER_HOME}/bin/sonar-scanner"
-            }
-        }
-    }
-}
-```
+---
 
-### Build Stage
-This stage builds the application to prepare it for deployment.
-
-```groovy
-pipeline {
-    agent any
-    
-    tools{
-        nodejs 'node21'
-    }
-    environment{
-        SCNNAMER_HOME = tool 'sonar-scanner'
-    }
-
-    stages {
-        stage('Build') {
-            steps {
-                sh "npm run build"
-            }
-        }
-    }
-}
-```
-
-### Deploy to Dev Stage
-In this stage, the application is deployed to the development environment.
-
-```groovy
-pipeline {
-    agent any
-    
-    tools{
-        nodejs 'node21'
-    }
-    environment{
-        SCNNAMER_HOME = tool 'sonar-scanner'
-    }
-
-    stages {
-        stage('Deploy to Dev') {
-            steps {
-                sh "docker-compose -f docker-compose.dev.yml up -d"
-            }
-        }
-    }
-}
-```
-
-## Production Deployment Pipeline
-The production deployment pipeline automates the process of deploying the application to the production environment. It ensures that the application is built, tested, and deployed in a consistent and reliable manner.
-
-### Build and Push Docker Image Stage
-In this stage, the Docker image is built and pushed to a container registry.
-
-```groovy
-pipeline {
-    agent any
-    
-    tools{
-        nodejs 'node21'
-    }
-    environment{
-        SCNNAMER_HOME = tool 'sonar-scanner'
-    }
-
-    stages {
-        stage('Build Docker Image') {
-            steps {
-                sh "docker build -t myapp:latest ."
-            }
-        }
-        
-        stage('Push Docker Image') {
-            steps {
-                sh "docker tag myapp:latest myregistry/myapp:latest"
-                sh "docker push myregistry/myapp:latest"
-            }
-        }
-    }
-}
-```
-
-### Deploy to Production Stage
-This stage deploys the application to the production environment using the Docker image.
-
-```groovy
-pipeline {
-    agent any
-    
-    tools{
-        nodejs 'node21'
-    }
-    environment{
-        SCNNAMER_HOME = tool 'sonar-scanner'
-    }
-
-    stages {
-        stage('Deploy to Production') {
-            steps {
-                sh "docker-compose -f docker-compose.prod.yml up -d"
-            }
-        }
-    }
-}
-```
-
-## Additional Configurations
-
-### Setting Up Cloudinary
-1. Create an account on Cloudinary.
-2. Obtain your cloud name, API key, and secret.
-3. Update your `.env` file with the obtained values.
-
-### Setting Up Mapbox
-1. Create an account on Mapbox.
-2. Obtain your public access token.
-3. Update your `.env` file with the obtained token.
-
-### Setting Up MongoDB Atlas
-1. Sign up for MongoDB Atlas.
-2. Create a new database.
-3. Retrieve your connection URL.
-4. Update your `.env` file with the connection URL.
-
-### Updating Jenkins Credentials
-1. Go to Jenkins Dashboard.
-2. Click on "Manage Jenkins" > "Manage Credentials".
-3. Add new credentials for Cloudinary, Mapbox, and MongoDB Atlas.
-
-### Configuring Jenkins for Node.js
-1. Go to Jenkins Dashboard.
-2. Click on "Manage Jenkins" > "Global Tool Configuration".
-3. Add Node.js installation under "NodeJS installations".
-
-## Conclusion
-This documentation provides a detailed guide for setting up and deploying a 3-tier full stack project. By following the outlined steps, you can ensure a smooth integration of Jenkins, Docker, SonarQube, Cloudinary, Mapbox, and MongoDB Atlas, resulting in a well-organized and efficient development and deployment process.
-
-Feel free to adjust and expand upon these configurations to fit your specific project requirements.
-```
-
-You can copy and paste this into your Markdown file. Let me know if you need any further adjustments!
+This version provides a detailed breakdown of each stage of your pipeline along with the references and setup information needed. If you need more specific details or additional sections, just let me know!
