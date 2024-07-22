@@ -39,17 +39,17 @@ The Jenkins pipeline automates the continuous integration and deployment process
 
 1. **Add NodeJS:** Go to "Manage Jenkins" > "Global Tool Configuration" and add NodeJS with the version `node21`.
    
-   ![Install NPM](path-to-your-image/2-install npm.png)
+   ![Install NPM](docimages/2-install npm.png)
 
 2. **Add Docker:** Configure Docker under "Manage Jenkins" > "Global Tool Configuration".
 
 3. **Add SonarQube:** Configure SonarQube under "Manage Jenkins" > "Configure System" and provide SonarQube server details.
    
-   ![Install Plugins](path-to-your-image/12-install plugins.png)
+   ![Install Plugins](docimages/12-install plugins.png)
    
 4. **Security Group Configuration:** Ensure your security groups are configured properly in AWS to allow necessary traffic.
    
-   ![Configure Security Group](path-to-your-image/1-config sg.png)
+   ![Configure Security Group](docimages/1-config sg.png)
 
 ## Pipeline Stages
 
@@ -65,7 +65,7 @@ stage('git checkout') {
 }
 ```
 
-![Jenkins Pipeline](path-to-your-image/16-working pipeline.png)
+![Jenkins Pipeline](docimages/16-working pipeline.png)
 
 ### Install Dependencies
 
@@ -79,7 +79,7 @@ stage('install dependencies') {
 }
 ```
 
-![Install Dependencies](path-to-your-image/7-npm i local.png)
+![Install Dependencies](docimages/7-npm i local.png)
 
 ### Unit Tests
 
@@ -93,7 +93,7 @@ stage('Unit tests') {
 }
 ```
 
-![Unit Tests](path-to-your-image/6-configure network.png)
+![Unit Tests](docimages/6-configure network.png)
 
 ### Trivy Filesystem Scan
 
@@ -107,7 +107,7 @@ stage('Trivy fs scan') {
 }
 ```
 
-![Trivy Filesystem Scan](path-to-your-image/10-install sonar qube.png)
+![Trivy Filesystem Scan](docimages/10-install sonar qube.png)
 
 ### SonarQube Analysis
 
@@ -123,7 +123,7 @@ stage('SonarQube Analysis') {
 }
 ```
 
-![SonarQube Analysis](path-to-your-image/11-sonar working.png)
+![SonarQube Analysis](docimages/11-sonar working.png)
 
 ### Docker Build & Tag
 
@@ -141,7 +141,7 @@ stage('docker build & Tag') {
 }
 ```
 
-![Docker Build & Tag](path-to-your-image/17-docker hub.png)
+![Docker Build & Tag](docimages/17-docker hub.png)
 
 ### Trivy Image Scan
 
@@ -155,7 +155,7 @@ stage('Trivy image scan') {
 }
 ```
 
-![Trivy Image Scan](path-to-your-image/3-configure cloudinary.png)
+![Trivy Image Scan](docimages/3-configure cloudinary.png)
 
 ### Docker Push Image
 
@@ -173,7 +173,7 @@ stage('docker Push image') {
 }
 ```
 
-![Docker Push Image](path-to-your-image/18-webhook test jenkins.png)
+![Docker Push Image](docimages/18-webhook test jenkins.png)
 
 ### Docker Deploy to Dev
 
@@ -191,7 +191,7 @@ stage('docker deploy to dev') {
 }
 ```
 
-![Docker Deploy to Dev](path-to-your-image/9-configure jenkins.png)
+![Docker Deploy to Dev](docimages/9-configure jenkins.png)
 
 ## Dockerfile
 
@@ -220,7 +220,7 @@ EXPOSE 3000
 CMD npm start
 ```
 
-![Dockerfile](path-to-your-image/4-mapbox account.png)
+![Dockerfile](docimages/4-mapbox account.png)
 
 ### Explanation
 
