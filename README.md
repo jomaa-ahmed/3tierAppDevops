@@ -39,7 +39,7 @@ The Jenkins pipeline automates the continuous integration and deployment process
 
 1. **Add NodeJS:** Go to "Manage Jenkins" > "Global Tool Configuration" and add NodeJS with the version `node21`.
    
-   ![Install NPM](docimages/2-install npm.png)
+   ![Install NPM](docimages/2-installnpm.png)
 
 2. **Add Docker:** Configure Docker under "Manage Jenkins" > "Global Tool Configuration".
 
