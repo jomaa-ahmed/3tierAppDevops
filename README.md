@@ -10,7 +10,6 @@
    - [Unit Tests](#unit-tests)
    - [Trivy Filesystem Scan](#trivy-filesystem-scan)
    - [SonarQube Analysis](#sonarqube-analysis)
-   - [Quality Gate](#quality-gate)
    - [Docker Build & Tag](#docker-build--tag)
    - [Trivy Image Scan](#trivy-image-scan)
    - [Docker Push Image](#docker-push-image)
@@ -39,10 +38,18 @@ The Jenkins pipeline automates the continuous integration and deployment process
 ### Jenkins Configuration
 
 1. **Add NodeJS:** Go to "Manage Jenkins" > "Global Tool Configuration" and add NodeJS with the version `node21`.
-2. **Add Docker:** Configure Docker under "Manage Jenkins" > "Global Tool Configuration".
-3. **Add SonarQube:** Configure SonarQube under "Manage Jenkins" > "Configure System" and provide SonarQube server details.
+   
+   ![Install NPM](path-to-your-image/2-install npm.png)
 
-![Configure Jenkins](file-Kh5SyEuBwGtIu3tvMnaMBaHG)
+2. **Add Docker:** Configure Docker under "Manage Jenkins" > "Global Tool Configuration".
+
+3. **Add SonarQube:** Configure SonarQube under "Manage Jenkins" > "Configure System" and provide SonarQube server details.
+   
+   ![Install Plugins](path-to-your-image/12-install plugins.png)
+   
+4. **Security Group Configuration:** Ensure your security groups are configured properly in AWS to allow necessary traffic.
+   
+   ![Configure Security Group](path-to-your-image/1-config sg.png)
 
 ## Pipeline Stages
 
@@ -58,6 +65,8 @@ stage('git checkout') {
 }
 ```
 
+![Jenkins Pipeline](path-to-your-image/16-working pipeline.png)
+
 ### Install Dependencies
 
 Installs Node.js dependencies required for the project.
@@ -70,7 +79,7 @@ stage('install dependencies') {
 }
 ```
 
-![Install npm dependencies](file-GWYDpTkeSIGJ4JHlfkMisRSu)
+![Install Dependencies](path-to-your-image/7-npm i local.png)
 
 ### Unit Tests
 
@@ -84,6 +93,8 @@ stage('Unit tests') {
 }
 ```
 
+![Unit Tests](path-to-your-image/6-configure network.png)
+
 ### Trivy Filesystem Scan
 
 Scans the filesystem for vulnerabilities.
@@ -95,6 +106,8 @@ stage('Trivy fs scan') {
     }
 }
 ```
+
+![Trivy Filesystem Scan](path-to-your-image/10-install sonar qube.png)
 
 ### SonarQube Analysis
 
@@ -110,24 +123,7 @@ stage('SonarQube Analysis') {
 }
 ```
 
-![SonarQube Analysis](file-25b26QjPMimvNzbFiQmjp3HL)
-
-### Quality Gate
-
-(Optional) Ensures the code quality meets the standards set in SonarQube.
-
-```groovy
-stage('Quality Gate') {
-    steps {
-        script {
-            def qg = waitForQualityGate()
-            if (qg.status != 'OK') {
-                error "Pipeline aborted due to quality gate failure: ${qg.status}"
-            }
-        }
-    }
-}
-```
+![SonarQube Analysis](path-to-your-image/11-sonar working.png)
 
 ### Docker Build & Tag
 
@@ -145,7 +141,7 @@ stage('docker build & Tag') {
 }
 ```
 
-![Docker Build](file-W4I9NcYfwWGkDKfurjbFp9LX)
+![Docker Build & Tag](path-to-your-image/17-docker hub.png)
 
 ### Trivy Image Scan
 
@@ -158,6 +154,8 @@ stage('Trivy image scan') {
     }
 }
 ```
+
+![Trivy Image Scan](path-to-your-image/3-configure cloudinary.png)
 
 ### Docker Push Image
 
@@ -175,7 +173,7 @@ stage('docker Push image') {
 }
 ```
 
-![Docker Push Image](file-Pl7m40Wz3BFIJyNWWR9R8Fsp)
+![Docker Push Image](path-to-your-image/18-webhook test jenkins.png)
 
 ### Docker Deploy to Dev
 
@@ -192,6 +190,8 @@ stage('docker deploy to dev') {
     }
 }
 ```
+
+![Docker Deploy to Dev](path-to-your-image/9-configure jenkins.png)
 
 ## Dockerfile
 
@@ -220,6 +220,8 @@ EXPOSE 3000
 CMD npm start
 ```
 
+![Dockerfile](path-to-your-image/4-mapbox account.png)
+
 ### Explanation
 
 - **FROM node:18:** Uses the Node.js 18 image as the base image.
@@ -229,86 +231,3 @@ CMD npm start
 - **COPY . .:** Copies the rest of the application files to the working directory.
 - **EXPOSE 3000:** Exposes port 3000 for the application.
 - **CMD npm start:** Defines the command to start the application.
-
-## Setting Up Security Groups
-
-Configure your security group to allow necessary traffic.
-
-![Configure Security Groups](file-QQFIJsGzJe3j2B7ELV4J0Fqh)
-
-## Setting Up API Keys
-
-1. **Cloudinary:** Obtain API keys for media management.
-   ![Cloudinary Configuration](file-dyBCggdDEEJYlFvnG9SKSmfo)
-
-2. **Mapbox:** Obtain an API key for mapping services.
-   ![Mapbox Account](file-CQXxKge87ECBJRvdB6DdnWbX)
-
-3. **MongoDB Atlas:** Obtain a connection URL for database services.
-   ![MongoDB Atlas](file-W4I9NcYfwWGkDKfurjbFp9LX)
-  
-## Network Configuration
-
-Configure your network settings for optimal performance and security.
-
-![Network Configuration](file-gNbGuV7CnsRqN5agGrH2hVn4)
-
-## Local Execution
-
-For local development and testing, the application is deployed on a local machine using tools like Mobaxterm for SSH connections, NVM for managing Node.js versions, and other necessary configurations.
-
-### Steps for Local Execution
-
-1. **Connect to the Machine:** Use Mobaxterm to connect to your Ubuntu machine using an SSH key.
-
-![Connect to Machine](file-GWYDpTkeSIGJ4JHlfkMisRSu)
-
-2. **Clone the Repository:**
-   ```bash
-   git clone https://github.com/jomaa-ahmed/3tierAppDevops.git
-   cd 3tierAppDevops
-   ```
-
-3. **Install Node.js using NVM:**
-   ```bash
-   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-   export NVM_DIR="$HOME/.nvm"
-   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-   [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-   nvm install 20
-   node -v
-   npm -v
-   ```
-
-![Install Node.js](file-GWYDpTkeSIGJ4JHlfkMisRSu)
-
-4. **Create a `.env` file:**
-   ```bash
-   vi .env
-   ```
-   Add the following lines to the file and replace placeholders with your actual values:
-   ```env
-   CLOUDINARY_CLOUD_NAME=[Your Cloudinary Cloud Name]
-   CLOUDINARY_KEY=[Your Cloudinary Key]
-   CLOUDINARY_SECRET=[Your Cloudinary Secret]
-   MAPBOX_TOKEN=[Your Mapbox Token]
-   DB_URL=[
-
-Your MongoDB Atlas Connection URL]
-   SECRET=[Your Chosen Secret Key]
-   ```
-
-5. **Install project dependencies:**
-   ```bash
-   npm install
-   ```
-
-6. **Start the application:**
-   ```bash
-   npm start
-   ```
-
-7. **Access the app:** Open a web browser and navigate to `http://VM_IP:3000` (replace VM_IP with the IP address of your Ubuntu machine).
-
-![Access the App](file-U61cuPgIQnbF8vCQqgUu7OAQ)
-
