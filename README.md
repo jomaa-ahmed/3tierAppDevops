@@ -18,7 +18,7 @@ Certainly! Here’s the refined documentation without the "Additional Configurat
    - [Trivy Image Scan](#trivy-image-scan)
    - [Docker Push Image](#docker-push-image)
    - [Docker Deploy to Dev](#docker-deploy-to-dev)
-4. [References](#references)
+
 
 ---
 
