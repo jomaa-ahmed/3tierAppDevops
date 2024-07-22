@@ -226,14 +226,5 @@ stage('docker deploy to dev') {
 - **Details:** Maps port 3000 on the host to port 3000 in the container.
 - **Commands Used:** `docker run`
 
-## References
-
-- [Jenkins Documentation](https://www.jenkins.io/doc/)
-- [Node.js Documentation](https://nodejs.org/en/docs/)
-- [Docker Documentation](https://docs.docker.com/)
-- [SonarQube Documentation](https://docs.sonarqube.org/)
-- [Trivy Documentation](https://aquasecurity.github.io/trivy/v0.34.2/)
 
 ---
-
-This version provides a detailed breakdown of each stage of your pipeline along with the references and setup information needed. If you need more specific details or additional sections, just let me know!
